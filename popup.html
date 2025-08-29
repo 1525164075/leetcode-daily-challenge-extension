@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode 每日挑战</title>
+    <!-- 链接到本地的 Tailwind CSS 文件以符合内容安全策略 -->
+    <link rel="stylesheet" href="tailwind.css">
+    <!-- 引入 Google Fonts 以优化字体显示 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 自定义样式 */
+        body {
+            font-family: 'Inter', sans-serif;
+            width: 400px; /* 设置插件弹窗宽度 */
+            background-color: #f7fafc;
+        }
+        /* 自定义滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a5b4fc;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #818cf8;
+        }
+    </style>
+</head>
+<body class="p-4 text-gray-800">
+
+    <!-- 头部区域 -->
+    <header class="relative flex items-center justify-between pb-3 border-b border-gray-200">
+        <h1 class="text-lg font-bold text-gray-900">LeetCode 每日挑战</h1>
+        <div id="day-counter" class="text-sm font-semibold text-indigo-600 bg-indigo-100 px-2.5 py-1 rounded-full hidden"></div>
+        <!-- 新增的关闭按钮 -->
+        <button id="close-button" class="absolute top-0 right-0 p-1 text-gray-400 rounded-full hover:bg-gray-200 focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </header>
+
+    <main id="app-container" class="mt-4">
+        <!-- 1. 日期未设置时的提示 -->
+        <div id="setup-view" class="hidden text-center p-6 bg-white rounded-lg shadow-sm">
+            <h3 class="text-md font-medium text-gray-900">欢迎开始挑战！</h3>
+            <p class="mt-1 text-sm text-gray-500">请设置您的挑战开始日期</p>
+
+            <svg class="mx-auto h-20 w-20 text-gray-300 my-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+
+            <div class="mt-4">
+                <input type="date" id="start-date-picker" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+        </div>
+
+        <!-- 2. 挑战未开始时的提示 -->
+        <div id="future-view" class="hidden text-center p-6 bg-white rounded-lg shadow-sm">
+             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="mt-2 text-md font-medium text-gray-900">挑战尚未开始</h3>
+            <p class="mt-1 text-sm text-gray-500">您的挑战将于 <span id="future-date" class="font-semibold text-indigo-600"></span> 开始。</p>
+             <button id="reset-date-button-future" class="mt-4 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                重置日期
+            </button>
+        </div>
+
+        <!-- 3. 挑战全部完成时的提示 -->
+        <div id="finished-view" class="hidden text-center p-6 bg-white rounded-lg shadow-sm">
+            <svg class="mx-auto h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="mt-2 text-md font-medium text-gray-900">恭喜！</h3>
+            <p class="mt-1 text-sm text-gray-500">您已完成所有挑战！</p>
+             <button id="reset-date-button-finished" class="mt-4 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                重新开始
+            </button>
+        </div>
+
+        <!-- 4. 当日所有任务完成时的提示 -->
+        <div id="all-tasks-done-view" class="hidden text-center p-4 my-4 bg-green-100 text-green-800 rounded-lg shadow-sm transition-all duration-300">
+            <p class="font-medium">🎉 太棒了！今日任务已全部完成！</p>
+        </div>
+
+        <!-- 5. 每日任务列表 -->
+        <div id="tasks-view" class="hidden max-h-96 overflow-y-auto pr-2">
+            <ul id="task-list" class="space-y-3">
+                <!-- 任务项将通过 JS 动态插入到这里 -->
+            </ul>
+             <div class="mt-6 text-center">
+                <button id="reset-date-button-tasks" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                    重置开始日期
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 引入核心逻辑脚本 -->
+    <script src="popup.js"></script>
+</body>
+</html>
